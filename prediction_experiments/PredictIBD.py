@@ -180,12 +180,13 @@ for seed in seeds:
     forests.append(m_asin)
     # save fpr and tpr
     confusion.append([fpr_asin, tpr_asin])
-
+    # save everything in list in order to save all objects as one file
+    result_objects = [performance, forests, confusion]
 
 # save computation results
-with open('performance_DataFrame.obj', mode='wb') as performance_file:
-    pickle.dump(performance, performance_file)
-    performance_file.close()
+with open('prediction_results.obj', mode='wb') as results_file:
+    pickle.dump(result_objects, results_file)
+    results_file.close()
     
 # plot one boxplot per performance metric grouped by algorithm
 perf_melted = pd.melt(performance,
@@ -197,59 +198,7 @@ seaborn_boxplot = seaborn.boxplot(x='algo', y='value', data=perf_melted, hue='me
 fig = seaborn_boxplot.get_figure()
 fig.savefig("../fig/boxplots_performances_all_algos.pdf")
 
-# want to group by metric now!
-perf_melted2 = pd.melt(performance,
-                      id_vars = ['auc', 'precision', 'f1', 'f2'], 
-                      value_vars = ['glove', 'pca', 'norm_raw'],
-                      var_name = 'algo')
-
-seaborn_boxplot = seaborn.boxplot(x='algo', y='value', data=perf_melted, hue='metric')
-fig = seaborn_boxplot.get_figure()
-fig.savefig("../fig/boxplots_performances_all_algos.pdf")
 
 
 
 
-boxplots = performance.boxplot(column = ['auc', 'precision', 'f1', 'f2'])
-fig = boxplots.get_figure()
-fig.savefig("../fig/boxplots_performance_glove.pdf")
-
-
-
-
-## NOTES
-
-# Structure
-# for file in files:
-
-    # 1. load data (train and test)
-    # 2. train forest
-    # 3. predict test samples
-    # 4. compute metrics
-    # 5. append to DataFrame
-
- # scaffold from their predict_AGP_testset:
-
-# regarding the warning
-# =============================================================================
-# There's a problem
-# There's a problem
-# There's a problem
-
-# naming convention of variables:
-# otu_train.columns.values != qual_vecs.index.values
-# ignore for now
-# =============================================================================
-
-
-## CV on whole data set
-# =============================================================================
-# X = pd.concat([X_train, X_val, X_test], axis = 0)
-# y = y_train + y_val + y_test
-# 
-# auc_crossVal, auc_prec_crossVal, f1_crossVal, feat_imp_embed = hf.crossValPrediction(otu_use = X, y = y, max_depth = 2, n_estimators = 50,  weight = 20, folds = 20)
-#     
-# print(auc_crossVal)
-# print(auc_prec_crossVal)    
-# 
-# =============================================================================
