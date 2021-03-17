@@ -119,8 +119,8 @@ for seed in seeds:
                                                                   max_depth = 5,
                                                                   n_estimators = 95,
                                                                   weight = 20,
-                                                                  plot = True,
-                                                                  plot_pr = True)
+                                                                  plot = False,
+                                                                  plot_pr = False)
     # monitor progress on console
     print(auc_embed)
     print(prec_embed)
@@ -143,9 +143,8 @@ for seed in seeds:
                                                                 target = target, pca_reduced = True, numComponents = 100)
     X_train_pca = pd.concat([X_train_pca, X_val_pca], axis = 0)
     y_train_pca = y_train_pca + y_val_pca
-    plt.subplot(1, 2, 1)
     m_pca, auc_pca, auc_train_pca, fpr_pca, tpr_pca, prec_pca, f1_pca, f2_pca, _  = hf.predictIBD(X_train_pca, y_train_pca, X_test_pca, y_test_pca, graph_title = "PCA dimensionality reduced " + str(X_train_pca.shape[1]) + " features", 
-                  max_depth = 5, n_estimators = 50, weight = 20, plot = True, plot_pr = True)
+                  max_depth = 5, n_estimators = 50, weight = 20, plot = False, plot_pr = False)
     
     row_pca = pd.DataFrame({'algo': ['pca'], 'seed': [seed], 'auc': [auc_pca],
                         'precision': [prec_pca], 'f1': [f1_pca], 
@@ -165,9 +164,8 @@ for seed in seeds:
                                                                 target = target, asinNormalized = True)
     X_train_asin = pd.concat([X_train_asin, X_val_asin], axis = 0)
     y_train_asin = y_train_asin + y_val_asin
-    plt.subplot(1, 2, 1)
-    m_asin, auc_asin, auc_train_asin, fpr_asin, tpr_asin, prec_asin, f1_asin, f2_asin, _ = hf.predictIBD(X_train, y_train, X_test, y_test, graph_title = "Normalized asinh Taxa Abundances " + str(X_train.shape[1]) + " features",
-                  max_depth = 5, n_estimators = 170, weight = 20, plot = True, plot_pr = True)
+    m_asin, auc_asin, auc_train_asin, fpr_asin, tpr_asin, prec_asin, f1_asin, f2_asin, _ = hf.predictIBD(X_train_asin, y_train_asin, X_test_asin, y_test_asin, graph_title = "Normalized asinh Taxa Abundances " + str(X_train.shape[1]) + " features",
+                  max_depth = 5, n_estimators = 170, weight = 20, plot = False, plot_pr = False)
 
     
     row_asin = pd.DataFrame({'algo': ['norm_raw'], 'seed': [seed], 'auc': [auc_asin],
