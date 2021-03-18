@@ -24,6 +24,7 @@
     '/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments'
         
 """
+import sys
 import os
 import pandas as pd 
 import helper_predict as hf
@@ -34,7 +35,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
 
-
+# translate argument if executed from command line
+meta_argument = sys.argv[1].split('=')[-1]
+if meta_argument == 'True':
+    meta = True
+else:
+    meta = False
+    
 # save performance metrics here
 performance = pd.DataFrame(columns = ['algo', 'seed', 'auc', 'precision',
                                       'f1', 'f2'])
@@ -78,19 +85,19 @@ for seed in seeds:
     
     # load sample by ASV matrix and meta data (from saved python objects)
     # separated by train and test
-    f = open(data_dir + otu_dir + "/otu_train_" + str(seed) + ".obj", "rb")
+    f = open(data_dir + otu_dir + "otu_train_" + str(seed) + ".obj", "rb")
     otu_train = pickle.load(f)
     f.close()
     
-    f = open(data_dir + otu_dir + "/otu_test_" + str(seed) + ".obj", "rb")
+    f = open(data_dir + otu_dir + "otu_test_" + str(seed) + ".obj", "rb")
     otu_test = pickle.load(f)
     f.close()
     
-    f = open(data_dir + otu_dir + "/map_train_" + str(seed) + ".obj", "rb")
+    f = open(data_dir + otu_dir + "map_train_" + str(seed) + ".obj", "rb")
     map_train = pickle.load(f)
     f.close()
     
-    f = open(data_dir + otu_dir + "/map_test_" + str(seed) + ".obj", "rb")
+    f = open(data_dir + otu_dir + "map_test_" + str(seed) + ".obj", "rb")
     map_test = pickle.load(f)
     f.close()
     
@@ -110,6 +117,16 @@ for seed in seeds:
                                                                    target = target,
                                                                    embed = True,
                                                                    qual_vecs = qual_vecs)
+    # remove meta variable if specified by argument
+    if not meta:
+        # specifiy column labels to be dropped
+        drop_cols = X_train.columns.values[100::1]
+        # drop meta data
+        X_train = X_train.drop(drop_cols, axis=1)
+        X_val = X_val.drop(drop_cols, axis=1)
+        X_test = X_test.drop(drop_cols, axis=1)
+        
+    
     X_train = pd.concat([X_train, X_val], axis = 0)
     y_train = y_train + y_val
     
@@ -143,6 +160,16 @@ for seed in seeds:
                                                                 target = target, pca_reduced = True, numComponents = 100)
     X_train_pca = pd.concat([X_train_pca, X_val_pca], axis = 0)
     y_train_pca = y_train_pca + y_val_pca
+    
+    # remove meta variable if specified by argument
+    if not meta:
+        # specifiy column labels to be dropped
+        drop_cols = X_train_pca.columns.values[100::1]
+        # drop meta data
+        X_train_pca = X_train_pca.drop(drop_cols, axis=1)
+        X_val_pca = X_val_pca.drop(drop_cols, axis=1)
+        X_test_pca = X_test_pca.drop(drop_cols, axis=1)
+    
     m_pca, auc_pca, auc_train_pca, fpr_pca, tpr_pca, prec_pca, f1_pca, f2_pca, _  = hf.predictIBD(X_train_pca, y_train_pca, X_test_pca, y_test_pca, graph_title = "PCA dimensionality reduced " + str(X_train_pca.shape[1]) + " features", 
                   max_depth = 5, n_estimators = 50, weight = 20, plot = False, plot_pr = False)
     
@@ -164,8 +191,20 @@ for seed in seeds:
                                                                 target = target, asinNormalized = True)
     X_train_asin = pd.concat([X_train_asin, X_val_asin], axis = 0)
     y_train_asin = y_train_asin + y_val_asin
+    
+    # remove meta variable if specified by argument
+    if not meta:
+        # specifiy column labels to be dropped
+        drop_cols = X_train_pca.columns.values[:-14:-1]
+        # drop meta data
+        X_train_asin = X_train_asin.drop(drop_cols, axis=1)
+        X_val_asin = X_val_asin.drop(drop_cols, axis=1)
+        X_test_asin = X_test_asin.drop(drop_cols, axis=1)
+    
     m_asin, auc_asin, auc_train_asin, fpr_asin, tpr_asin, prec_asin, f1_asin, f2_asin, _ = hf.predictIBD(X_train_asin, y_train_asin, X_test_asin, y_test_asin, graph_title = "Normalized asinh Taxa Abundances " + str(X_train.shape[1]) + " features",
                   max_depth = 5, n_estimators = 170, weight = 20, plot = False, plot_pr = False)
+
+    
 
     
     row_asin = pd.DataFrame({'algo': ['norm_raw'], 'seed': [seed], 'auc': [auc_asin],
@@ -182,7 +221,7 @@ for seed in seeds:
     result_objects = [performance, forests, confusion]
 
 # save computation results
-with open('prediction_results.obj', mode='wb') as results_file:
+with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:
     pickle.dump(result_objects, results_file)
     results_file.close()
     
@@ -194,9 +233,6 @@ perf_melted = pd.melt(performance,
 
 seaborn_boxplot = seaborn.boxplot(x='algo', y='value', data=perf_melted, hue='metric')
 fig = seaborn_boxplot.get_figure()
-fig.savefig("../fig/boxplots_performances_all_algos.pdf")
-
-
-
+fig.savefig("../fig/boxplots_performances_all_algos_meta=" + str(meta) + ".pdf")
 
 

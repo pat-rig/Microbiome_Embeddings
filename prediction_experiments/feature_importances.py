@@ -9,6 +9,7 @@
     os.chdir('/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments')
 """
 import numpy as np
+import pickle
 
 # load results from prediction experiments
 with open('prediction_results.obj', mode='rb') as results_file:
@@ -26,14 +27,34 @@ feat_imps = [forests_by_algo[i][j].feature_importances_ for i in range(3) for j 
 
 
 # compute means per algorithm over feature importances
-no_reps = len(forests_by_algo[1])
 glove_imp = np.mean(feat_imps[:27:1], axis=0)
 pca_imp = np.mean(feat_imps[27:54:1], axis=0)
 raw_imp = np.mean(feat_imps[54::1], axis=0)
+# ValueError: operands could not be broadcast together with shapes (26627,) (26640,) 
+# guess on cause: 
+# Since forests are trained on different subsets of the data, some forests
+# use variables (ASVs) which are not used by others.
+
+# Fix
+# Per Forest: Map variable to ASV name
+# --> create new array with appropriate encoding for non-existing features (not zero!!)
+#       IMPORTANT TO CHECK BEFOREHAND WHETHER THE ESITMATES ARE NA!
+
 # more elegantly?
 # [np.nanmean(feat_imps[0 + (i-1) * no_reps : i * no_reps : 1], axis = 0) for i in range(3)]
 
-# sort decreasing 
+# sort decreasingly 
 np.argsort(glove_imp)
 np.argsort(pca_imp)
+# indices 104 and 109 are associated with the highest gini importance
+# what do they correspond to?
+# extract variable 'names' from input to RFC
+
+
+
+
+
+
 np.argsort(raw_imp)
+
+
