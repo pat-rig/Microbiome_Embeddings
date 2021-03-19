@@ -130,6 +130,12 @@ for seed in seeds:
     X_train = pd.concat([X_train, X_val], axis = 0)
     y_train = y_train + y_val
     
+    # todo:
+    # optimize hyper params over validation set, if not meta
+    # GridSearch RF: Train on X_train and Predict on X_val
+    #       => choose hyper pars with highest AUC/AUPR on X_val
+    
+    
     m_embed, auc_embed, auc_train_embed, fpr_embed, tpr_embed, prec_embed, f1_embed, f2_embed, _ = hf.predictIBD(X_train, y_train,
                                                                   X_test, y_test,
                                                                   graph_title = "Embedding weighted by averaging taxa "+ str(X_train.shape[1]) + " features",
