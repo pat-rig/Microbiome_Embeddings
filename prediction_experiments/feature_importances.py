@@ -11,8 +11,12 @@
 import numpy as np
 import pickle
 
+
+meta = False
+
 # load results from prediction experiments
-with open('prediction_results.obj', mode='rb') as results_file:
+results_obj = 'prediction_results_meta=' + str(meta) + '.obj'
+with open(results_obj, mode='rb') as results_file:
     result = pickle.load(results_file)
     results_file.close()
     
@@ -49,6 +53,11 @@ np.argsort(pca_imp)
 # indices 104 and 109 are associated with the highest gini importance
 # what do they correspond to?
 # extract variable 'names' from input to RFC
+
+
+# Compare ASVs associated with most important features
+# how many features to inspect
+n_imp = 5
 
 
 
