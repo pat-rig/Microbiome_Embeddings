@@ -65,7 +65,7 @@ otu_dir = data_dir + 'otu_objs/'
 with open(data_dir + 'seeds.obj', mode='rb') as seedfile:
     seeds = pickle.load(seedfile)
     seedfile.close()
-    
+  
 # Iterate over all resamplings (identified by seed)
 for seed in seeds:    
     
@@ -112,7 +112,7 @@ for seed in seeds:
     target = "IBD"
     
     # GloVe Embedding
-    X_train, X_val, X_test, y_train, y_val, y_test = hf.getMlInput(otu_train,
+    X_train, X_val, X_test, y_train, y_val, y_test, axes =  hf.getMlInput(otu_train,
                                                                    otu_test,
                                                                    map_train,
                                                                    map_test,
@@ -191,11 +191,12 @@ for seed in seeds:
     forests.append(m_pca)
     # save fpr and tpr
     confusion.append([fpr_pca, tpr_pca])
-    
+    # save principal axes
+    pca_embeddings.append(principal_axes)
     
     
     # Normalized Raw Count Data
-    X_train_asin, X_val_asin, X_test_asin, y_train_asin, y_val_asin, y_test_asin = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
+    X_train_asin, X_val_asin, X_test_asin, y_train_asin, y_val_asin, y_test_asin, axes = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
                                                                 target = target, asinNormalized = True)
     X_train_asin = pd.concat([X_train_asin, X_val_asin], axis = 0)
     y_train_asin = y_train_asin + y_val_asin
@@ -225,8 +226,7 @@ for seed in seeds:
     forests.append(m_asin)
     # save fpr and tpr
     confusion.append([fpr_asin, tpr_asin])
-    # save principal axes
-    pca_embeddings.append(principal_axes)
+
     # save everything in list in order to save all objects as one file
     result_objects = [performance, forests, confusion, principal_axes]
 
