@@ -50,6 +50,8 @@ performance = pd.DataFrame(columns = ['algo', 'seed', 'auc', 'precision',
 forests = []
 # save false positive and true positive rates here
 confusion = []
+# save principal axes here
+pca_embeddings = []
 
 # supply directory structure with relative paths
 data_dir = '../data/' # contains initial files from Tataru and David (2020)
@@ -162,7 +164,7 @@ for seed in seeds:
 
     
     # PCA Embedding
-    X_train_pca, X_val_pca, X_test_pca, y_train_pca, y_val_pca, y_test_pca = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
+    X_train_pca, X_val_pca, X_test_pca, y_train_pca, y_val_pca, y_test_pca, principal_axes  = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
                                                                 target = target, pca_reduced = True, numComponents = 100)
     X_train_pca = pd.concat([X_train_pca, X_val_pca], axis = 0)
     y_train_pca = y_train_pca + y_val_pca
@@ -223,8 +225,10 @@ for seed in seeds:
     forests.append(m_asin)
     # save fpr and tpr
     confusion.append([fpr_asin, tpr_asin])
+    # save principal axes
+    pca_embeddings.append(principal_axes)
     # save everything in list in order to save all objects as one file
-    result_objects = [performance, forests, confusion]
+    result_objects = [performance, forests, confusion, principal_axes]
 
 # save computation results
 with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:
