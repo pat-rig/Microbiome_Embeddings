@@ -200,7 +200,7 @@ def computeMLstats(m, data, y, plot = False, plot_pr = False, graph_title = None
 
 
 
-#Create input for ML alg including otu abundances and metadata
+#Concat otu abundances and metadata for final RF Input
 def combineData(microbe_data, mapping_data, names = []):
     micro_norm = preprocessing.scale(microbe_data)
     map_norm = preprocessing.scale(mapping_data)
@@ -292,6 +292,7 @@ def getCrossValMlInput(otu_train, otu_test, map_train, map_test, target,
             if i == 0:
                 X_test = combineData(embed_average(otu_test, qual_vecs), map_test, names = names)
         elif pca_reduced:
+            # Perform PCA
             pca_train, pca_val, pca_test = getPCAReduced(otu_train_train, otu_val, otu_test, components = numComponents)
             X_train = combineData(pca_train, map_train_train, names = names)
             X_val = combineData(pca_val, map_val, names = names)
