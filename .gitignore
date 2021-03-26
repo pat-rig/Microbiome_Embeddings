@@ -16,3 +16,4 @@ ipython_config.py
 prediction_experiments/prediction_results_meta=False.obj
 prediction_experiments/prediction_results_meta=True.obj
 
+data/otu_objs/*
