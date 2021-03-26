@@ -12,3 +12,7 @@ ipython_config.py
 .spyproject
 
 *.swp
+
+prediction_experiments/prediction_results_meta=False.obj
+prediction_experiments/prediction_results_meta=True.obj
+
