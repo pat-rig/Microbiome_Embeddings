@@ -25,6 +25,9 @@ path_to_ids = '../data/embeddings/'
 # perform analysis with or without meta data as predictors?
 meta = False
 
+
+meta = False
+
 # load results from prediction experiments
 results_obj = 'prediction_results_meta=' + str(meta) + '.obj'
 with open(results_obj, mode='rb') as results_file:
@@ -200,6 +203,11 @@ for seed in seeds:
                                                           embedding_fasta=emb_fasta)
     
     glove_embedding_matrices.append(qual_vecs)
+
+# Compare ASVs associated with most important features
+# how many features to inspect
+n_imp = 5
+
 
 
 
