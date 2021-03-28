@@ -59,7 +59,7 @@ for seed in seeds:
     seqs_per_subsample.append(df.columns.values) # already in proper order
 
 # save object
-with open('seqs_per_subsample.obj', mode='wr') as seqfile:
+with open('seqs_per_subsample.obj', mode='wb') as seqfile:
     pickle.dump(seqs_per_subsample, seqfile)        
     
 
