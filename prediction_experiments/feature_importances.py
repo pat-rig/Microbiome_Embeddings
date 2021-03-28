@@ -54,15 +54,22 @@ for seed in seeds:
     otu_file = otu_dir + 'otu_train_' + str(seed) + '.obj'
     with open(otu_file, mode='rb') as training_data:
         df = pickle.load(training_data)
+        seqs_per_subsample.append(df.columns.values) # already in proper order
         training_data.close()
     
-    seqs_per_subsample.append(df.columns.values) # already in proper order
+    
 
 # save object
 with open('seqs_per_subsample.obj', mode='wb') as seqfile:
-    pickle.dump(seqs_per_subsample, seqfile)        
+    pickle.dump(seqs_per_subsample, seqfile)     
+    seqfile.close()
     
-
+# load if collected
+with open('seqs_per_subsample.obj', mode='rb') as seqfile:
+    seqs_per_subsample = pickle.load(seqfile)
+    seqfile.close()
+    
+        
 # older version:
 # =============================================================================
 # # define paths to renamed embeddings
@@ -105,51 +112,49 @@ print(unequal)
 # =============================================================================
 # Analyze PCA
 # =============================================================================
-# =============================================================================
-# pca_imp = feat_imps[27:54:1]
-# # load embedding matrices and seqs of ASVs involved
-# pca_embedding_matrices = result[3]
-# seq_table_raw_data = []
-# 
-# # treat subsamples individually and aggregate interpretation in the end
-# for imp, j in zip(pca_imp, range(len(pca_imp))):
-#     
-#     # how many features to inspect? fix arbitrarily for now.
-#     n_imp = 10
-#     # idx of most important features
-#     pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp:1]
-#     
-#     # select embedding matrix and corresponing sequences for current subsample
-#     E = pca_embedding_matrices[j] # 100 rows
-#     seqs = seqs_per_subsample[j]
-#     
-#     # inspect ASV-weights in most important features (rows of the trafo matrix)
-#     imp_pcs = E[pca_most_imp_idx, :]
-#     sorted_weights = np.argsort(np.abs(imp_pcs), axis=1)[:0:-1]
-#     # Pick top10 ASVs per important principal axis
-#     n_asv = 10
-#     imp_asv_per_pc_idx = [imp_pc[:n_asv] for imp_pc in sorted_weights] 
-#     # <-- contains indices of 10 highest scoring asvs for 10 most important PCs
-#     # for the currently investigated seed!
-#     
-#     # unlist and tabulate
-#     high_scoring_asv_idx = np.array(imp_asv_per_pc_idx).flatten()
-#     # count sequences instead of indices, since the latter is not comparable
-#     # across subsamples
-#     for idx in high_scoring_asv_idx:
-#         seq_table_raw_data.append(seqs[idx])
-#     
-#     
-# pca_table = np.unique(seq_table_raw_data, return_counts=True)
-# # First glance at the results 
-# np.sort(pca_table[1])[:0:-1][:5]
-# # array([99, 11, 10, 10, 10])
-# 
-# # problematic: '<unk>' sequence(s) achieve most often a high score
-# pca_table[0][0]
-# # '<unk>'
-# 
-# =============================================================================
+pca_imp = feat_imps[27:54:1]
+# load embedding matrices and seqs of ASVs involved
+pca_embedding_matrices = result[3]
+seq_table_raw_data = []
+
+# treat subsamples individually and aggregate interpretation in the end
+for imp, j in zip(pca_imp, range(len(pca_imp))):
+    
+    # how many features to inspect? fix arbitrarily for now.
+    n_imp = 10
+    # idx of most important features
+    pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp:1]
+    
+    # select embedding matrix and corresponing sequences for current subsample
+    E = pca_embedding_matrices[j] # 100 rows
+    seqs = seqs_per_subsample[j]
+    
+    # inspect ASV-weights in most important features (rows of the trafo matrix)
+    imp_pcs = E[pca_most_imp_idx, :]
+    sorted_weights = np.argsort(np.abs(imp_pcs), axis=1)[:0:-1]
+    # Pick top10 ASVs per important principal axis
+    n_asv = 10
+    imp_asv_per_pc_idx = [imp_pc[:n_asv] for imp_pc in sorted_weights] 
+    # <-- contains indices of 10 highest scoring asvs for 10 most important PCs
+    # for the currently investigated seed!
+    
+    # unlist and tabulate
+    high_scoring_asv_idx = np.array(imp_asv_per_pc_idx).flatten()
+    # count sequences instead of indices, since the latter is not comparable
+    # across subsamples
+    for idx in high_scoring_asv_idx:
+        seq_table_raw_data.append(seqs[idx])
+    
+    
+pca_table = np.unique(seq_table_raw_data, return_counts=True)
+# First glance at the results 
+np.sort(pca_table[1])[:0:-1][:5]
+# array([99, 11, 10, 10, 10])
+
+# problematic: '<unk>' sequence(s) achieve most often a high score
+pca_table[0][0]
+# '<unk>'
+
 
     
         
