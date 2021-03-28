@@ -15,5 +15,6 @@ ipython_config.py
 
 prediction_experiments/prediction_results_meta=False.obj
 prediction_experiments/prediction_results_meta=True.obj
+prediction_experiments/seqs_per_subsample.obj
 
 data/otu_objs/*
