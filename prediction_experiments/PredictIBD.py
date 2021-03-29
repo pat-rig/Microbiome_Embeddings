@@ -228,7 +228,7 @@ for seed in seeds:
     confusion.append([fpr_asin, tpr_asin])
 
     # save everything in list in order to save all objects as one file
-    result_objects = [performance, forests, confusion, principal_axes]
+    result_objects = [performance, forests, confusion, pca_embeddings]
 
 # save computation results
 with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:

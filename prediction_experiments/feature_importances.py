@@ -47,27 +47,32 @@ feat_imps = [forests_by_algo[i][j].feature_importances_ for i in range(3) for j 
 # retreive seeds
 seeds = result[0].loc[:,'seed'].unique()
 # Collect seqs of ASVs present in subsample corresponding to seed
-seqs_per_subsample = []
-# Collect from otu_train_$SEED.objs
-for seed in seeds:
-    # load training data corresponding to that seed
-    otu_file = otu_dir + 'otu_train_' + str(seed) + '.obj'
-    with open(otu_file, mode='rb') as training_data:
-        df = pickle.load(training_data)
-        seqs_per_subsample.append(df.columns.values) # already in proper order
-        training_data.close()
-    
-    
 
-# save object
-with open('seqs_per_subsample.obj', mode='wb') as seqfile:
-    pickle.dump(seqs_per_subsample, seqfile)     
-    seqfile.close()
+# =============================================================================
+# Only execute on cluster
+# =============================================================================
+wd_id = os.getcwd().split('/')[1] # identifier to on which machine we are
+
+if wd_id != 'Users':
+    seqs_per_subsample = []
+    # Collect from otu_train_$SEED.objs
+    for seed in seeds:
+        # load training data corresponding to that seed
+        otu_file = otu_dir + 'otu_train_' + str(seed) + '.obj'
+        with open(otu_file, mode='rb') as training_data:
+            df = pickle.load(training_data)
+            seqs_per_subsample.append(df.columns.values) # already in proper order
+            training_data.close()
     
-# load if collected
-with open('seqs_per_subsample.obj', mode='rb') as seqfile:
-    seqs_per_subsample = pickle.load(seqfile)
-    seqfile.close()
+    # save object
+    with open('seqs_per_subsample.obj', mode='wb') as seqfile:
+        pickle.dump(seqs_per_subsample, seqfile)     
+        seqfile.close()
+else:
+    # load if on local machine and object already exists
+    with open('seqs_per_subsample.obj', mode='rb') as seqfile:
+        seqs_per_subsample = pickle.load(seqfile)
+        seqfile.close()
     
         
 # older version:
