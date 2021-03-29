@@ -125,12 +125,12 @@ for seed in seeds:
         drop_cols = X_train.columns.values[100::1]
         # drop meta data
         X_train = X_train.drop(drop_cols, axis=1)
-        X_val = X_val.drop(drop_cols, axis=1)
+        # X_val = X_val.drop(drop_cols, axis=1)
         X_test = X_test.drop(drop_cols, axis=1)
         
     
-    X_train = pd.concat([X_train, X_val], axis = 0)
-    y_train = y_train + y_val
+    # X_train = pd.concat([X_train, X_val], axis = 0)
+    # y_train = y_train + y_val
     
     # todo:
     # optimize hyper params over validation set, if not meta
@@ -166,8 +166,8 @@ for seed in seeds:
     # PCA Embedding
     X_train_pca, X_val_pca, X_test_pca, y_train_pca, y_val_pca, y_test_pca, principal_axes  = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
                                                                 target = target, pca_reduced = True, numComponents = 100)
-    X_train_pca = pd.concat([X_train_pca, X_val_pca], axis = 0)
-    y_train_pca = y_train_pca + y_val_pca
+    # X_train_pca = pd.concat([X_train_pca, X_val_pca], axis = 0)
+    # y_train_pca = y_train_pca + y_val_pca
     
     # remove meta variable if specified by argument
     if not meta:
@@ -175,7 +175,7 @@ for seed in seeds:
         drop_cols = X_train_pca.columns.values[100::1]
         # drop meta data
         X_train_pca = X_train_pca.drop(drop_cols, axis=1)
-        X_val_pca = X_val_pca.drop(drop_cols, axis=1)
+        # X_val_pca = X_val_pca.drop(drop_cols, axis=1)
         X_test_pca = X_test_pca.drop(drop_cols, axis=1)
     
     m_pca, auc_pca, auc_train_pca, fpr_pca, tpr_pca, prec_pca, f1_pca, f2_pca, _  = hf.predictIBD(X_train_pca, y_train_pca, X_test_pca, y_test_pca, graph_title = "PCA dimensionality reduced " + str(X_train_pca.shape[1]) + " features", 
@@ -198,8 +198,8 @@ for seed in seeds:
     # Normalized Raw Count Data
     X_train_asin, X_val_asin, X_test_asin, y_train_asin, y_val_asin, y_test_asin, axes = hf.getMlInput(otu_train, otu_test, map_train, map_test, 
                                                                 target = target, asinNormalized = True)
-    X_train_asin = pd.concat([X_train_asin, X_val_asin], axis = 0)
-    y_train_asin = y_train_asin + y_val_asin
+    # X_train_asin = pd.concat([X_train_asin, X_val_asin], axis = 0)
+    # y_train_asin = y_train_asin + y_val_asin
     
     # remove meta variable if specified by argument
     if not meta:
@@ -207,7 +207,7 @@ for seed in seeds:
         drop_cols = X_train_pca.columns.values[:-14:-1]
         # drop meta data
         X_train_asin = X_train_asin.drop(drop_cols, axis=1)
-        X_val_asin = X_val_asin.drop(drop_cols, axis=1)
+        # X_val_asin = X_val_asin.drop(drop_cols, axis=1)
         X_test_asin = X_test_asin.drop(drop_cols, axis=1)
     
     m_asin, auc_asin, auc_train_asin, fpr_asin, tpr_asin, prec_asin, f1_asin, f2_asin, _ = hf.predictIBD(X_train_asin, y_train_asin, X_test_asin, y_test_asin, graph_title = "Normalized asinh Taxa Abundances " + str(X_train.shape[1]) + " features",

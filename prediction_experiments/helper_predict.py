@@ -234,16 +234,19 @@ def getMlInput(otu_train, otu_test, map_train, map_test, target,
  
     if embed:
         X_train = combineData(embed_average(otu_train_train, qual_vecs), map_train_train, names = qual_vecs.columns.values)
-        X_val = combineData(embed_average(otu_val, qual_vecs), map_val, names = qual_vecs.columns.values)
+        X_val = otu_val
+        # X_val = combineData(embed_average(otu_val, qual_vecs), map_val, names = qual_vecs.columns.values)
         X_test = combineData(embed_average(otu_test, qual_vecs), map_test, names = qual_vecs.columns.values)
     elif pca_reduced:
         pca_train, pca_val, pca_test, axes = getPCAReduced(otu_train_train, otu_val, otu_test, components = numComponents)
         X_train = combineData(pca_train, map_train_train, names = names)
-        X_val = combineData(pca_val, map_val, names = names)
+        X_val = pca_val # without validation data combineData does not work
+        # X_val = combineData(pca_val, map_val, names = names)
         X_test = combineData(pca_test, map_test, names = names)
     elif asinNormalized:
         X_train = combineData(asinh(otu_train_train), map_train_train, names = names)
-        X_val = combineData(asinh(otu_val), map_val, names = names)
+        X_val = asinh(otu_val)
+        # X_val = combineData(asinh(otu_val), map_val, names = names)
         X_test = combineData(asinh(otu_test), map_test, names = names)
     elif percNormalized: 
         X_train = combineData(otu_train_train.div(otu_train_train.sum(axis=1), axis=0), map_train_train, naming = naming)
@@ -374,11 +377,11 @@ def getPCAReduced(X_train, X_val, X_test, components = 500):
     pca = PCA(n_components= components)
     pca.fit(X_train)
     X_train_pca = pca.transform(X_train)
-    X_val_pca = pca.transform(X_val)
+    # X_val_pca = pca.transform(X_val)
     X_test_pca = pca.transform(X_test)
     # retreive TRANSPOSED embedding matrix
     principal_axes = pca.components_ # shape: (n_components, n_features)
-    return(X_train_pca, X_val_pca, X_test_pca, principal_axes)
+    return(X_train_pca, X_val, X_test_pca, principal_axes)
 
 def plotPCA(table, otu_raw, components):
     pca = PCA(n_components= components)
