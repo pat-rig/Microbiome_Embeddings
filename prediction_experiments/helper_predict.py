@@ -221,7 +221,8 @@ def getMlInput(otu_train, otu_test, map_train, map_test, target,
     # require combineData, setTarget, embed_average
     
     #split training set again to get some validation data for training hyperparameters
-    otu_train_train = otu_train.sample(frac = 0.9, random_state = 10)
+    otu_train_train = otu_train.sample(frac = 1, random_state = 10) 
+    # explicit validation not required for now
     otu_val = otu_train.drop(otu_train_train.index.values)
     map_train_train = map_train.loc[otu_train_train.index.values]
     map_val = map_train.drop(otu_train_train.index.values)

@@ -136,11 +136,10 @@ for imp, j in zip(pca_imp, range(len(pca_imp))):
     # idx of most important features
     pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp:1]
     
-    # select embedding matrix and corresponing sequences for current subsample
+    # select embedding matrix for current subsample
     E = pca_embedding_matrices[j] # 100 rows
-    seqs = seqs_per_subsample[j]
     
-    # inspect ASV-weights in most important features (rows of the trafo matrix)
+    # inspect ASV-weights in most important features (rows of E)
     imp_pcs = E[pca_most_imp_idx, :]
     sorted_weights = np.argsort(np.abs(imp_pcs), axis=1)[:0:-1]
     # Pick top10 ASVs per important principal axis
