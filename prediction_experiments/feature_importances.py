@@ -103,29 +103,35 @@ else:
 # =============================================================================
 # Unit Test
 # =============================================================================
-# observe that the number of ASVs per subsample vary!
-[len(x) for x in seqs_per_subsample]
+# Get importances and and embedding matrices per run
+pca_imp = feat_imps[27:54:1]
+pca_embedding_matrices = result[3]
+
+# observe that the number of ASVs per subsample do not vary!
+no_asvs_per_run = [len(x) for x in seqs_per_subsample]
+any(np.array(no_asvs_per_run) != no_asvs_per_run[0])
+
 # check if they contain different sequences at the same index
 len_a = len(seqs_per_subsample[0])
 unequal = 0
 for a, b in zip(seqs_per_subsample[0], seqs_per_subsample[1][:len_a:]):
     unequal += int(a != b)
 print(unequal)
-# 26447 
-
+# 0
+# 
+# => use one entry of seqs_per_subsample for indexing
+seqs = seqs_per_subsample[0]
 
 # =============================================================================
 # Analyze PCA
 # =============================================================================
-pca_imp = feat_imps[27:54:1]
-# load embedding matrices and seqs of ASVs involved
-pca_embedding_matrices = result[3]
 seq_table_raw_data = []
 
 # treat subsamples individually and aggregate interpretation in the end
 for imp, j in zip(pca_imp, range(len(pca_imp))):
     
     # how many features to inspect? fix arbitrarily for now.
+    # justify through histograms of PC scores later
     n_imp = 10
     # idx of most important features
     pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp:1]
