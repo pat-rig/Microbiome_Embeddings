@@ -52,6 +52,7 @@ forests = []
 confusion = []
 # save principal axes here
 pca_embeddings = []
+all_embed_seqs = []
 
 # supply directory structure with relative paths
 data_dir = '../data/' # contains initial files from Tataru and David (2020)
@@ -85,6 +86,7 @@ for seed in seeds:
     qual_vecs, embed_ids, embed_seqs = hf.getQualVecs(data_dir=data_dir,
                                                       embedding_txt=emb_txt,
                                                       embedding_fasta=emb_fasta)    
+    all_embed_seqs.append(embed_seqs)
     
     # load sample by ASV matrix and meta data (from saved python objects)
     # separated by train and test
@@ -232,7 +234,7 @@ for seed in seeds:
     # save everything in list in order to save all objects as one file
     result_objects = {'performance': performance, 'forests': forests,
                       'confusion': confusion, 'pca_embeddings': pca_embeddings,
-                      'emb_seqs': embed_seqs}
+                      'emb_seqs': all_embed_seqs}
 
 # save computation results
 with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:
