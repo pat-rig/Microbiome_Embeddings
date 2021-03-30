@@ -119,7 +119,8 @@ for seed in seeds:
                                                                    map_test,
                                                                    target = target,
                                                                    embed = True,
-                                                                   qual_vecs = qual_vecs)
+                                                                   qual_vecs = qual_vecs,
+                                                                   embed_seqs = embed_seqs)
     # remove meta variable if specified by argument
     if not meta:
         # specifiy column labels to be dropped
@@ -231,7 +232,7 @@ for seed in seeds:
     # save everything in list in order to save all objects as one file
     result_objects = {'performance': performance, 'forests': forests,
                       'confusion': confusion, 'pca_embeddings': pca_embeddings,
-                      'emb_seqs': embed_seqs]
+                      'emb_seqs': embed_seqs}
 
 # save computation results
 with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:

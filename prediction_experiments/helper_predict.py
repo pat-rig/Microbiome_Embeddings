@@ -222,7 +222,7 @@ def setTarget(mapping, target = ""):
 def getMlInput(otu_train, otu_test, map_train, map_test, target, 
                embed = False, pca_reduced = False, asinNormalized = False,
                percNormalized = False, pathwayEmbed = False,
-               qual_vecs = None, numComponents = 250, names = []):
+               qual_vecs = None, numComponents = 250, names = [], embed_seqs=None):
     # require combineData, setTarget, embed_average
     
     #split training set again to get some validation data for training hyperparameters
@@ -238,10 +238,10 @@ def getMlInput(otu_train, otu_test, map_train, map_test, target,
     axes = None
  
     if embed:
-        X_train = combineData(embed_average(otu_train_train, qual_vecs), map_train_train, names = qual_vecs.columns.values)
+        X_train = combineData(embed_average(otu_train_train, qual_vecs, embed_seqs), map_train_train, names = qual_vecs.columns.values)
         X_val = otu_val
         # X_val = combineData(embed_average(otu_val, qual_vecs), map_val, names = qual_vecs.columns.values)
-        X_test = combineData(embed_average(otu_test, qual_vecs), map_test, names = qual_vecs.columns.values)
+        X_test = combineData(embed_average(otu_test, qual_vecs, embed_seqs), map_test, names = qual_vecs.columns.values)
     elif pca_reduced:
         pca_train, pca_val, pca_test, axes = getPCAReduced(otu_train_train, otu_val, otu_test, components = numComponents)
         X_train = combineData(pca_train, map_train_train, names = names)
@@ -258,9 +258,9 @@ def getMlInput(otu_train, otu_test, map_train, map_test, target,
         X_val = combineData(otu_val.div(otu_val.sum(axis=1), axis=0), map_val, names = names)
         X_test = combineData(otu_test.div(otu_test.sum(axis=1), axis=0), map_test, names = names)
     elif pathwayEmbed:
-        X_train = combineData(embed_average(otu_train_train, pathway_table), map_train_train, names = names)
-        X_val = combineData(embed_average(otu_val, pathway_table), map_val, names = names)
-        X_test = combineData(embed_average(otu_test, pathway_table), map_test, names = names)
+        X_train = combineData(embed_average(otu_train_train, pathway_table, embed_seqs), map_train_train, names = names)
+        X_val = combineData(embed_average(otu_val, pathway_table, embed_seqs), map_val, names = names)
+        X_test = combineData(embed_average(otu_test, pathway_tablei, embed_seqs), map_test, names = names)
     
     return(X_train, X_val, X_test, y_train, y_val, y_test, axes)  
 
@@ -333,7 +333,7 @@ def getCrossValMlInput(otu_train, otu_test, map_train, map_test, target,
 
 
 
-def embed_average(otu, qual_vecs):
+def embed_average(otu, qual_vecs, embed_seqs):
     # does the number of identical(sample by asv columns, embed_matrix rows)
     # names
     # match the number of all asvs?
