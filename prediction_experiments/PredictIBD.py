@@ -81,6 +81,7 @@ for seed in seeds:
     emb_fasta = fasta_dir + 'asvs_' + str(seed) + '.fasta'
           
     # load embedding matrix and corresponding nucleotide sequences of ASVs
+    # drops unknown sequences!
     qual_vecs, embed_ids, embed_seqs = hf.getQualVecs(data_dir=data_dir,
                                                       embedding_txt=emb_txt,
                                                       embedding_fasta=emb_fasta)    
@@ -228,7 +229,9 @@ for seed in seeds:
     confusion.append([fpr_asin, tpr_asin])
 
     # save everything in list in order to save all objects as one file
-    result_objects = [performance, forests, confusion, pca_embeddings]
+    result_objects = {'performance': performance, 'forests': forests,
+                      'confusion': confusion, 'pca_embeddings': pca_embeddings,
+                      'emb_seqs': embed_seqs]
 
 # save computation results
 with open('prediction_results_meta=' + str(meta) + '.obj', mode='wb') as results_file:

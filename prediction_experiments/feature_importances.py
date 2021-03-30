@@ -110,6 +110,7 @@ pca_embedding_matrices = result[3]
 # observe that the number of ASVs per subsample do not vary!
 no_asvs_per_run = [len(x) for x in seqs_per_subsample]
 any(np.array(no_asvs_per_run) != no_asvs_per_run[0])
+# False
 
 # check if they contain different sequences at the same index
 len_a = len(seqs_per_subsample[0])

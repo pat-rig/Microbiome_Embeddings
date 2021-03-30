@@ -43,13 +43,16 @@ import sklearn
 
 
 def getQualVecs(data_dir, embedding_txt, embedding_fasta):
-   
+    # load glove embedding and corresponding sequences
     qual_vecs = pd.read_csv(embedding_txt, sep = " ", index_col = 0,
                             dtype = {0:str}, header = None)
     qual_repseqs = pd.read_csv(embedding_fasta, sep = "\t", header = None)
     
+    # get sequences corresponding to id from every second row 
     import re
+    # get ids
     ids = qual_repseqs.iloc[range(0, qual_repseqs.shape[0], 2), 0]
+    # remove '>' character
     ids = [re.sub(">", "", i) for i in ids.values]
 
     seqs = qual_repseqs.iloc[range(1, qual_repseqs.shape[0], 2), 0]
@@ -63,6 +66,7 @@ def getQualVecs(data_dir, embedding_txt, embedding_fasta):
     print(len(ids))
     print(len(seqs))
     print(qual_vecs.shape)
+    
     return(qual_vecs, ids, seqs)
 
 
@@ -73,12 +77,13 @@ def asinh(otu):
 def matchOtuQual(otu, embed_ids, embed_seqs):
     # select only columns present in embedding matrix
     otu_reorder = otu.loc[:, embed_seqs]
-    # unit test for latter procedure
+    # unit test
+    # ordering of ASVs in the embedding the same as in data frame?
     if np.sum([i==j for i,j in zip(otu_reorder.columns.values, embed_seqs)]) == len(embed_seqs):
         print("all good")
     else:
         print("There's a problem, stop")
-    # relabel columns with sequence ids
+    # relabel columns with sequence ids instead of asvs
     otu_reorder.columns = embed_ids
     return(otu_reorder)
 
@@ -332,7 +337,7 @@ def embed_average(otu, qual_vecs):
     # does the number of identical(sample by asv columns, embed_matrix rows)
     # names
     # match the number of all asvs?
-    if(np.sum([i == j for i,j in zip(otu.columns.values, qual_vecs.index.values)]) == otu.shape[1]):
+    if(np.sum([i == j for i,j in zip(otu.columns.values, embed_seqs)]) == otu.shape[1]):
         print("all good")
     else:
         print("There's a problem")
