@@ -14,7 +14,7 @@ with open('imp_asv_tables.obj', mode='rb') as table_file:
     
 # only execute on large memory machine (file requires ~1GB)
 # load abundance data 
-# abundance_data = pd.read_csv('../data/seqtab_filter.07.txt', delim='\t', index_col=0)
+abundance_data = pd.read_csv('../data/seqtab_filter.07.txt', sep='\t', index_col=0)
 
 # pick asvs to inspect
 sign_asvs_raw = tables['sign_asvs']['raw']
