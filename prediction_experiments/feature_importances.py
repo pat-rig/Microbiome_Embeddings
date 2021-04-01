@@ -82,17 +82,20 @@ for imp, j in zip(pca_imp, range(len(pca_imp))):
     # justify through histograms of PC scores later
     n_imp = 10
     # idx of most important features
-    pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp:1]
+    pca_most_imp_idx = np.argsort(imp)[:0:-1][:n_imp+1:1]
     
     # select embedding matrix for current subsample
     E = pca_embedding_matrices[j] # 100 rows
     
     # inspect ASV-weights in most important features (rows of E)
     imp_pcs = E[pca_most_imp_idx, :]
-    sorted_weights = np.argsort(np.abs(imp_pcs), axis=1)[:0:-1]
+    sorted_weights = np.argsort(np.abs(imp_pcs), axis=1)
+
     # Pick top10 ASVs per important principal axis
     n_asv = 10
-    imp_asv_per_pc_idx = [imp_pc[:n_asv] for imp_pc in sorted_weights] 
+    # reverse order in sorted_weights!
+    l = sorted_weights.shape[1]
+    imp_asv_per_pc_idx = [imp_pc[:l-n_asv-1:-1] for imp_pc in sorted_weights] 
     # <-- contains indices of 10 highest scoring asvs for 10 most important PCs
     # for the currently investigated seed!
     
