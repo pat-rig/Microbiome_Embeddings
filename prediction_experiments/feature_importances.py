@@ -115,8 +115,8 @@ pd.DataFrame(pca_table[1]).hist()
 # only a few appear 17+ times and some more around 7+times
 # how many?
 sorted_frequencies = np.sort(pca_table[1])[:0:-1]
-no_sign_asvs_pca = np.sum(pca_table[1] > 7) #being conservative here with 7
-# 48
+no_sign_asvs_pca = np.sum(pca_table[1] > 60) #being conservative here with 7
+# 9
 
 # look at top ten sequences explicitly
 pca_table[0][np.argsort(pca_table[1])[:0:-1][:10:]]
