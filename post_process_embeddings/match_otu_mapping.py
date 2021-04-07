@@ -35,8 +35,11 @@ cat_criteria = ["IBD", "EXERCISE_FREQUENCY", "SEX", "ONE_LITER_OF_WATER_A_DAY_FR
 
 otu_clean, map_clean = hf.filterForMetadata(otu_clean, map_clean, number_criteria, cat_criteria)
 
-
-
+fully_post_processed = {'abundance': otu_clean, 'meta': map_clean}
+with open(otu_dir + "/fully_postprocessed.obj", mode='wb') as both_file:
+    pickle.dump(fully_post_processed, both_file)
+    both_file.close()
+    
 # Iterate over all seeds and save objects
 # load seeds
 with open('../data/seeds.obj', mode = 'rb') as seedfile:
