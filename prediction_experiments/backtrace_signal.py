@@ -4,6 +4,7 @@
     import os
     os.chdir('/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments')
 """
+import os
 import pickle
 import pandas as pd
 import numpy as np
@@ -17,40 +18,60 @@ with open('imp_asv_tables.obj', mode='rb') as table_file:
     tables = pickle.load(table_file)
     table_file.close()
     
-    # Only execute on machine with large memory
-# only execute on large memory machine (file requires ~1GB)
-# load abundance data 
-abundance_data = pd.read_csv('../data/seqtab_filter.07.txt', sep='\t',
-                             index_col=0)
-
 # pick asvs to inspect
 sign_asvs_raw = tables['sign_asvs']['raw']
 sign_asvs_pca = tables['sign_asvs']['pca']
 com_asvs_bool = [raw_asv in sign_asvs_pca for raw_asv in sign_asvs_raw]
 com_asvs = sign_asvs_raw[com_asvs_bool]
-
-# extract and save abundance vectors
-sign_abundances = {'pca': abundance_data.loc[:, sign_asvs_pca],
-                   'raw': abundance_data.loc[:, sign_asvs_raw]}
-
-with open('sign_abundances.obj', mode='wb') as abundance_file:
-    pickle.dump(sign_abundances, abundance_file)
-    abundance_file.close()
     
-# if on local machine: collect abundances
 
-with open('sign_abundances.obj', mode='rb') as abundance_file:
-    sign_abundances = pickle.load(abundance_file)
-    abundance_file.close()
+# Extract abundance data from raw data
+# Don't execute on local machine iot not to fill memory
+local = os.getcwd().split('/')[1] == 'Users'    
+if not local:
+    # load abundance data 
+    abundance_data = pd.read_csv('../data/seqtab_filter.07.txt', sep='\t',
+                                 index_col=0)
+    
+    # extract and save abundance vectors
+    sign_abundances = {'pca': abundance_data.loc[:, sign_asvs_pca],
+                       'raw': abundance_data.loc[:, sign_asvs_raw]}
+    
+    with open('sign_abundances.obj', mode='wb') as abundance_file:
+        pickle.dump(sign_abundances, abundance_file)
+        abundance_file.close()
+# if on local machine: collect abundances
+else:    
+    with open('sign_abundances.obj', mode='rb') as abundance_file:
+        sign_abundances = pickle.load(abundance_file)
+        abundance_file.close()
 
 # =============================================================================
 # Variance in important ASVs
 # =============================================================================
-# first look compute variances per column
+# first look: compute variances per column
 raw_variances = sign_abundances['raw'].var(axis=0).values
 pca_variances = sign_abundances['pca'].var(axis=0).values    
 
 # how to visualize that variances are higher for pca?
+# violinplot
+var_df = pd.DataFrame([raw_variances, pca_variances]).T
+var_df.columns = ['raw', 'pca']
+# melt for seaborn compatibility
+var_df_melted = pd.melt(var_df, value_vars = ['raw', 'pca'],
+                        value_name = 'Variance', var_name = 'Data Type')
+# remove NaNs
+var_df_melted = \
+    var_df_melted.drop(np.where(var_df_melted['Variance'].isnull())[0], axis=0)
+# plotting    
+sns.set(font_scale=1.5, style='white')
+variance_violins = sns.catplot(data = var_df_melted, y = 'Variance',
+                               x = 'Data Type', kind='violin', height = 8,
+                               aspect = 1.2)
+variance_violins.set(title = 'Abundance Variances in Most Important ASVs for'+\
+                     ' IBD Classification', ylabel = 'Variance in Abundance')
+variance_violins.savefig('../fig/variance_violins.pdf')
+
 
 # =============================================================================
 # Association between important ASVs and IBD status
@@ -86,6 +107,9 @@ pca_abundance, pca_abundance_mld = collect_abundances('pca')
 plotting_dict = {'raw': {'wide': raw_abundance, 'long': raw_abundance_mld},
                  'pca': {'wide': pca_abundance, 'long': pca_abundance_mld}}
 
+# =============================================================================
+# PCA vs. Raw
+# =============================================================================
 # BOXPLOTS
 
 def plot_imp_asv_abundance_dists(algo = 'raw'):
@@ -163,6 +187,7 @@ names_of_interest = np.concatenate((not_captured_by_pca, all_pca_asvs))
 # remember! first three are the ones not_caputred_by_pca
 
 # compute variances of all ASVs
+# REQUIRES LOADING OF THE FULL DATA SET -- i.e. set local = True 
 all_variances = abundance_data.var(axis=0)
 # select variances of ASVs of interest
 vars_of_interest = all_variances.loc[names_of_interest]
@@ -193,29 +218,126 @@ ecdf.set_xticklabels(xlabels)
 ecdf.savefig('../fig/ecdf_abundance_variances.pdf')
 
 
-# HISTOGRAMS
-hist_data = raw_abundance.iloc[:, [0, -1]]
-sns.histplot(x = hist_data.columns.values[0],
-             hue = 'IBD', data = hist_data,).set(xlabel = None)
-                                       #ylim=(0,0.015), xlim =(0,500))
-ax.set(xlabel = None, ylim=(0,500), xlim =(0,100))
-
-
-
-
-# draw histograms separately since seaborn normalizes area not per group
-pos_idx = np.where(raw_abundance['IBD'])[0]
-sns.histplot(raw_abundance.iloc[pos_idx, 5], stat = 'density',
-             bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None, title = 'IBD pos',
-                                                                   xlim=(0,1000))
-sns.histplot(raw_abundance.iloc[np.array(negative), 5], stat = 'density', bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None,
-                                                                         xlim=(0,1000))
-
-# look at interactions
-# two dimensional patterns?
-
+# =============================================================================
 # GloVe vs PCA
-# Project onto most important components
-# onedimensional
+# =============================================================================
 
-# two dimensional: contourlines
+# 0. Inspect Embeddings Structure Visually
+
+# plot heatmaps of embedding matrices
+
+# averages not useful for GloVe?
+# look at them individually
+
+# collect embedding matrices
+# load glove manually
+seed = 0
+emb_glove = pd.read_csv('../data/embeddings/glove_input_' + str(seed) + '_emb.txt',
+                        sep=" ", index_col=0, header=None, dtype = {0:str})
+
+# sort columns by feature importance
+# require imps for run 0
+# load results from prediction experiments
+results_obj = 'prediction_results_meta=False.obj'
+with open(results_obj, mode='rb') as results_file:
+    result = pickle.load(results_file)
+    results_file.close()
+
+# get index for current seed
+seed_ind = np.where(result['performance']['seed'].unique() == str(seed))[0][0]
+# extract feat_imps and sort df
+feat_imps = result['forests'][seed_ind].feature_importances_
+emb_glove_sorted = emb_glove.iloc[:, np.argsort(feat_imps)[::-1]]
+
+sns.set(font_scale = 4)
+fig_heat, ax_heat = plt.subplots(figsize=(80,40))
+ax_heat = sns.heatmap(emb_glove_sorted.T)
+ax_heat \
+    .set(xticklabels = [], xticks = [],
+         xlabel = r'ASVs (2.7 $\times 10^4$)',
+         ylabel = 'Embeddings Dimensions (100)',
+         title = 'GloVe Embedding Matrix for one Fit')
+ax_heat.get_figure().savefig('../fig/glove_heat_large.pdf')    
+# Observe Some Pattern in 
+
+# HeatMap for PCA
+# look at corresponding PC embedding Matrix
+# Could be done for all fits at once but requires irregular padding because of
+# different dimensions per fit:
+#    all_eigens = result['pca_embeddings']
+#    [mat.shape for mat in all_eigens]
+
+pca_emb = result['pca_embeddings'][seed_ind]
+fig_heat, ax_heat = plt.subplots(figsize=(80,40))
+ax_heat = sns.heatmap(pca_emb, vmin=-0.00015, vmax=0.00015)
+ax_heat \
+    .set(xticklabels = [], xticks = [],
+         xlabel = r'ASVs (2.7 $\times 10^4$)',
+         ylabel = 'Principal Components (100)',
+         title = 'PCA Embedding Matrix for one Fit')
+ax_heat.get_figure().savefig('../fig/pca_heat_large.pdf')
+
+# purple noise in vanilla plot
+# --> adjust color scale
+# look at distribution of values in the matrix
+[np.round(np.quantile(pca_emb.flatten() * sign,
+                      q = quant), 6) for sign in [-1, 1] for quant in [0.9, 0.95, 0.99]]
+# [5.5e-05, 0.000148, 0.001458, 5.9e-05, 0.000161, 0.001588]
+
+plt.rcParams.update({'font.size': 12})
+plt.hist(pca_emb.flatten(), density = True, bins = 15)
+plt.xlim([-0.3, 0.3])
+
+# Hierarchichal Clustering of Dimensions --> Heatmap
+glove_clustered = sns.clustermap(data = emb_glove.T, figsize = (30,16),
+                                 row_cluster = True, col_cluster = False,
+                                 metric = "braycurtis", method = "average",
+                                 vmin = -1.5, vmax = 1.5,
+                                 xticklabels = [])
+glove_clustered.savefig('../fig/glove_heat_clustered.pdf')
+
+pca_clustered = sns.clustermap(data = pca_emb, figsize = (30,16),
+                                 row_cluster = True, col_cluster = False,
+                                 metric = "canberra", method = "average",
+                                 vmin = -0.00015, vmax = 0.00015,
+                                 xticklabels = [])
+pca_clustered.savefig('../fig/pca_heat_clustered.pdf')
+
+
+
+
+
+
+
+
+# =============================================================================
+# Notes
+# =============================================================================
+# # HISTOGRAMS
+# hist_data = raw_abundance.iloc[:, [0, -1]]
+# sns.histplot(x = hist_data.columns.values[0],
+#              hue = 'IBD', data = hist_data,).set(xlabel = None)
+#                                        #ylim=(0,0.015), xlim =(0,500))
+# ax.set(xlabel = None, ylim=(0,500), xlim =(0,100))
+# 
+# 
+# 
+# 
+# # draw histograms separately since seaborn normalizes area not per group
+# pos_idx = np.where(raw_abundance['IBD'])[0]
+# sns.histplot(raw_abundance.iloc[pos_idx, 5], stat = 'density',
+#              bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None, title = 'IBD pos',
+#                                                                    xlim=(0,1000))
+# sns.histplot(raw_abundance.iloc[np.array(negative), 5], stat = 'density', bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None,
+#                                                                          xlim=(0,1000))
+# 
+# # look at interactions
+# # two dimensional patterns?
+# 
+# # GloVe vs PCA
+# # Project onto most important components
+# # onedimensional
+# 
+# # two dimensional: contourlines
+# 
+# =============================================================================
