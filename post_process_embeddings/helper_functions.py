@@ -83,9 +83,10 @@ def matchOtuQual(otu, embed_ids, embed_seqs):
     return(otu_reorder)
 
 def match_otu_map(otu, mapping):
+    # only select observations for which meta data is available
     # issue (1) was fixed here
     sample_names = set(otu.index.values).intersection(set(mapping.index.values))
-    print(len(sample_names))
+    print('only' + str(len(sample_names)) + 'samples have meta data and sequences')
     map_clean = mapping.loc[sample_names,:] #Keep samples if present in otu
     otu = otu.loc[sample_names, :]
     
