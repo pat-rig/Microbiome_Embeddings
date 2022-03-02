@@ -21,7 +21,7 @@
     NOTES:
         
         working directory:
-    '/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments'
+    '/prediction_experiments'
         
 """
 import sys

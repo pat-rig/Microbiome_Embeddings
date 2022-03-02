@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-    EVALUATE PREDICTION EXPERIMENTS
-    
-    1. Inspect Feature Importance Scores
-    
-    import os
-    os.chdir('/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments')
+    EVALUATE PREDICTION EXPERIMENTS 
+
 """
 import numpy as np
 import pickle
@@ -176,50 +172,4 @@ table_dict = {'pca': pca_table, 'raw': raw_table,
 with open('imp_asv_tables.obj', mode='wb') as asv_file:
     pickle.dump(table_dict, asv_file)
     asv_file.close()
-
-
-
-
-
-
-
-
-
-
-# How many ASVs are important for both and how many are individual to the algos?
-n_comparison = 100
-# debug!
-# [pca_table[0][np.argsort(pca_table[1])[:0:-1]][i] in raw_table[0][np.argsort(raw_table[1])[:0:-1]] for i in range(n_comparison)]
-       
-# =============================================================================
-# GloVe
-# =============================================================================
-
-# glove from /data/embeddings
-# save embedding matrices here
-# =============================================================================
-# glove_embedding_matrices = []
-# 
-# 
-# # load seeds (identifiers for individual files)
-# with open(data_dir + 'seeds.obj', mode='rb') as seedfile:
-#     seeds = pickle.load(seedfile)
-#     seedfile.close()
-# 
-# for seed in seeds:
-#     # define filenames
-#     emb_txt = emb_dir + 'glove_input_' + str(seed) + '_emb.txt'
-#     emb_fasta = fasta_dir + 'asvs_' + str(seed) + '.fasta'
-#     
-#     # load embedding matrix and corresponding nucleotide sequences of ASVs
-#     qual_vecs, embed_ids, embed_seqs = hf.getQualVecs(data_dir=data_dir,
-#                                                           embedding_txt=emb_txt,
-#                                                           embedding_fasta=emb_fasta)
-#     
-#     glove_embedding_matrices.append(qual_vecs)
-# 
-# # Compare ASVs associated with most important features
-# # how many features to inspect
-# n_imp = 5
-# =============================================================================
 

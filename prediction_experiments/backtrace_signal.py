@@ -1,8 +1,5 @@
 """
-    WHY ARE ASVs WITH MOST SIGNAL FOR RAW DATA NOT IMPORTANT FOR PCA?
-    
-    import os
-    os.chdir('/Users/patrick/Drive/13_sem/research_project/TEMP/prediction_experiments')
+    WHY ARE ASVs WITH MOST SIGNAL FOR RAW DATA NOT IMPORTANT FOR PCA?    
 """
 import os
 import pickle
@@ -302,42 +299,3 @@ pca_clustered = sns.clustermap(data = pca_emb, figsize = (30,16),
                                  vmin = -0.00015, vmax = 0.00015,
                                  xticklabels = [])
 pca_clustered.savefig('../fig/pca_heat_clustered.pdf')
-
-
-
-
-
-
-
-
-# =============================================================================
-# Notes
-# =============================================================================
-# # HISTOGRAMS
-# hist_data = raw_abundance.iloc[:, [0, -1]]
-# sns.histplot(x = hist_data.columns.values[0],
-#              hue = 'IBD', data = hist_data,).set(xlabel = None)
-#                                        #ylim=(0,0.015), xlim =(0,500))
-# ax.set(xlabel = None, ylim=(0,500), xlim =(0,100))
-# 
-# 
-# 
-# 
-# # draw histograms separately since seaborn normalizes area not per group
-# pos_idx = np.where(raw_abundance['IBD'])[0]
-# sns.histplot(raw_abundance.iloc[pos_idx, 5], stat = 'density',
-#              bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None, title = 'IBD pos',
-#                                                                    xlim=(0,1000))
-# sns.histplot(raw_abundance.iloc[np.array(negative), 5], stat = 'density', bins = [0, 50, 100, 150, 200, 1000]).set(xlabel = None,
-#                                                                          xlim=(0,1000))
-# 
-# # look at interactions
-# # two dimensional patterns?
-# 
-# # GloVe vs PCA
-# # Project onto most important components
-# # onedimensional
-# 
-# # two dimensional: contourlines
-# 
-# =============================================================================
